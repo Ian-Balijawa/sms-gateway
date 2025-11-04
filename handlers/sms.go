@@ -6,6 +6,7 @@ import (
 	"sms-gateway/models"
 	"sms-gateway/service"
 	"sms-gateway/utils"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -291,8 +292,16 @@ func (h *SMSHandler) GetSMSLogs(c *gin.Context) {
 	query := database.DB.Where("client_id = ?", clientID).Order("created_at DESC")
 
 	// Pagination
-	limit := c.DefaultQuery("limit", "50")
-	offset := c.DefaultQuery("offset", "0")
+	limitStr := c.DefaultQuery("limit", "50")
+	offsetStr := c.DefaultQuery("offset", "0")
+	limit, err1 := strconv.Atoi(limitStr)
+	offset, err2 := strconv.Atoi(offsetStr)
+	if err1 != nil {
+		limit = 50
+	}
+	if err2 != nil {
+		offset = 0
+	}
 	query = query.Limit(limit).Offset(offset)
 
 	// Status filter
