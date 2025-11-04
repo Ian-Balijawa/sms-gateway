@@ -2,9 +2,9 @@ package utils
 
 import (
 	"log"
-	"sms-gateway/database"
-	"sms-gateway/models"
+		"github.com/Ian-Balijawa/sms-gateway/database"
 	"time"
+	"github.com/Ian-Balijawa/sms-gateway/models"
 )
 
 // ResetDailyUsage resets daily usage for all clients

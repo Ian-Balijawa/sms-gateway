@@ -5,9 +5,9 @@ import (
 	"encoding/base64"
 	"net/http"
 	"os"
-	"sms-gateway/database"
-	"sms-gateway/models"
 	"strings"
+	"github.com/Ian-Balijawa/sms-gateway/database"
+	"github.com/Ian-Balijawa/sms-gateway/models"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"

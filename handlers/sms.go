@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"net/http"
-	"sms-gateway/database"
-	"sms-gateway/models"
-	"sms-gateway/service"
-	"sms-gateway/utils"
 	"strconv"
+
+	"github.com/Ian-Balijawa/sms-gateway/database"
+	"github.com/Ian-Balijawa/sms-gateway/models"
+	"github.com/Ian-Balijawa/sms-gateway/service"
+	"github.com/Ian-Balijawa/sms-gateway/utils"
 
 	"github.com/gin-gonic/gin"
 )

@@ -9,7 +9,7 @@ import (
 
 // APIClient represents a client application that can use the SMS gateway
 type APIClient struct {
-	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	ID        uuid.UUID `gorm:"type:uuid;primary_key" json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
@@ -30,12 +30,23 @@ type APIClient struct {
 	// Usage tracking
 	DailyUsage   int       `gorm:"default:0" json:"daily_usage"`
 	MonthlyUsage int       `gorm:"default:0" json:"monthly_usage"`
-	LastReset    time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"last_reset"`
+	LastReset    time.Time `json:"last_reset"`
+}
+
+// BeforeCreate hook to generate UUID before creating
+func (client *APIClient) BeforeCreate(tx *gorm.DB) error {
+	if client.ID == uuid.Nil {
+		client.ID = uuid.New()
+	}
+	if client.LastReset.IsZero() {
+		client.LastReset = time.Now()
+	}
+	return nil
 }
 
 // SMSLog represents a log entry for each SMS sent
 type SMSLog struct {
-	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	ID        uuid.UUID `gorm:"type:uuid;primary_key" json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 
 	// Client information
@@ -57,6 +68,14 @@ type SMSLog struct {
 	// Metadata
 	IPAddress  string `json:"ip_address"`
 	UserAgent  string `json:"user_agent"`
+}
+
+// BeforeCreate hook to generate UUID before creating
+func (log *SMSLog) BeforeCreate(tx *gorm.DB) error {
+	if log.ID == uuid.Nil {
+		log.ID = uuid.New()
+	}
+	return nil
 }
 
 // SMSRequest represents the incoming SMS request payload

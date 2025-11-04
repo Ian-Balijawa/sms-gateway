@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sms-gateway/config"
-	"sms-gateway/models"
+
+	"github.com/Ian-Balijawa/sms-gateway/config"
+	"github.com/Ian-Balijawa/sms-gateway/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -39,9 +40,20 @@ func InitDB() error {
 		dialector = sqlite.Open("sms_gateway.db")
 	}
 
-	DB, err = gorm.Open(dialector, &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
+	var config gorm.Config
+	if dbType == "sqlite" {
+		// SQLite-specific configuration
+		config = gorm.Config{
+			Logger: logger.Default.LogMode(logger.Info),
+			DisableForeignKeyConstraintWhenMigrating: true, // SQLite has limited FK support
+		}
+	} else {
+		config = gorm.Config{
+			Logger: logger.Default.LogMode(logger.Info),
+		}
+	}
+
+	DB, err = gorm.Open(dialector, &config)
 
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)

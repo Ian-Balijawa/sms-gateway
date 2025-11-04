@@ -1,4 +1,4 @@
-module sms-gateway
+module github.com/Ian-Balijawa/sms-gateway
 
 go 1.24.0
 

@@ -7,10 +7,11 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"sms-gateway/config"
-	"sms-gateway/models"
-	"sms-gateway/utils"
 	"time"
+
+	"github.com/Ian-Balijawa/sms-gateway/config"
+	"github.com/Ian-Balijawa/sms-gateway/models"
+	"github.com/Ian-Balijawa/sms-gateway/utils"
 )
 
 type SMSProviderResponse struct {

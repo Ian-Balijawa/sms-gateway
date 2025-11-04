@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"net/http"
-	"sms-gateway/database"
-	"sms-gateway/models"
 	"time"
+
+	"github.com/Ian-Balijawa/sms-gateway/database"
+	"github.com/Ian-Balijawa/sms-gateway/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
