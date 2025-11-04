@@ -32,38 +32,88 @@ sms-gateway/
 
 ## Prerequisites
 
-- Go 1.21 or higher
+- Go 1.21 or higher installed
+- egosms.co account credentials
 - PostgreSQL (optional, for production) or SQLite (default, for development)
 
-## Installation
+## Quick Start
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd api
-```
+### 1. Install Dependencies
 
-2. Install dependencies:
 ```bash
 go mod download
 ```
 
-3. Create a `.env` file from the example:
+### 2. Configure Environment
+
 ```bash
-cp .env.example .env
+cp env.template .env
+# Edit .env with your egosms.co credentials
 ```
 
-4. Configure your environment variables in `.env`:
-   - Set your egosms.co credentials
-   - Configure database settings
-   - Set admin credentials
+Fill in your `.env` file with:
+- `SMS_USERNAME`: Your egosms.co username
+- `SMS_PASSWORD`: Your egosms.co password
+- `SMS_SENDER_ID`: Your default sender ID
+- `ADMIN_PASSWORD`: Change from default for security
+- `JWT_SECRET`: Generate with `openssl rand -hex 32`
 
-5. Run the application:
+### 3. Run the Server
+
 ```bash
 go run main.go
+# Or use Makefile:
+make run
 ```
 
 The API will start on `http://localhost:8080` by default.
+
+### 4. Create Your First Client
+
+Using curl:
+```bash
+curl -X POST http://localhost:8080/api/v1/admin/clients \
+  -u admin:admin \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "My App",
+    "email": "myapp@example.com"
+  }'
+```
+
+**Important**: Save the `api_key` and `api_secret` from the response - you'll need them to send SMS.
+
+### 5. Send Your First SMS
+
+```bash
+curl -X POST http://localhost:8080/api/v1/sms/send \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "X-API-Secret: YOUR_API_SECRET" \
+  -d '{
+    "number": "+256701234567",
+    "message": "Hello from SMS Gateway!"
+  }'
+```
+
+## Installation
+
+For detailed installation instructions, see the [Quick Start](#quick-start) section above.
+
+### Building
+
+```bash
+go build -o sms-gateway main.go
+```
+
+### Using Makefile
+
+```bash
+make run      # Run the application
+make build    # Build the binary
+make test     # Run tests
+make clean    # Clean build artifacts
+```
 
 ## API Endpoints
 
@@ -249,6 +299,32 @@ func main() {
 | `ADMIN_USER` | Admin username | `admin` |
 | `ADMIN_PASSWORD` | Admin password | `admin` |
 
+## Production Deployment
+
+For production deployments, consider:
+
+1. **Use PostgreSQL** instead of SQLite:
+   - Set `DB_TYPE=postgres` in `.env`
+   - Configure PostgreSQL connection details
+
+2. **Change Admin Credentials**:
+   - Set strong `ADMIN_USER` and `ADMIN_PASSWORD` in `.env`
+
+3. **Set Strong JWT Secret**:
+   - Generate a secure random string for `JWT_SECRET`:
+     ```bash
+     openssl rand -hex 32
+     ```
+
+4. **Configure CORS**:
+   - Update CORS settings in `main.go` to allow only your domains
+
+5. **Use Reverse Proxy**:
+   - Deploy behind nginx or similar for SSL termination
+
+6. **Monitor Logs**:
+   - Set up log aggregation for production monitoring
+
 ## Performance Considerations
 
 - The API is designed to handle multiple concurrent requests efficiently
@@ -258,6 +334,23 @@ func main() {
   - Implementing Redis for distributed rate limiting
   - Adding request queuing for bulk SMS operations
   - Using a reverse proxy (nginx) for load balancing
+
+### Testing High Load
+
+The API is designed to handle multiple requests per second. To test:
+
+```bash
+# Install hey (HTTP load testing tool)
+go install github.com/rakyll/hey@latest
+
+# Test with 100 concurrent requests, 1000 total
+hey -n 1000 -c 100 \
+  -H "X-API-Key: YOUR_KEY" \
+  -H "X-API-Secret: YOUR_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"number":"+256701234567","message":"Test"}' \
+  http://localhost:8080/api/v1/sms/send
+```
 
 ## Security
 
@@ -280,16 +373,19 @@ func main() {
 
 ## Development
 
-### Building
-
-```bash
-go build -o sms-gateway main.go
-```
-
 ### Running Tests
 
 ```bash
 go test ./...
+```
+
+### Development Mode
+
+```bash
+# Run with debug logging
+GIN_MODE=debug go run main.go
+# Or use Makefile
+make dev
 ```
 
 ## License
